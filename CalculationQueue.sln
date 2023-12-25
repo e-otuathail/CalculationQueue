@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Queue.Manager", "Queue.Mana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Queue.Manager.Test", "Queue.Manager.Test\Queue.Manager.Test.csproj", "{D2167B5F-EBB7-42A7-A93E-ED3F9E92DAFD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CalculationQueue.Caller", "Queue.Caller\CalculationQueue.Caller.csproj", "{51EFB743-639D-4960-A18E-74FFBAD1CC4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Queue.Caller", "Queue.Caller\Queue.Caller.csproj", "{51EFB743-639D-4960-A18E-74FFBAD1CC4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
