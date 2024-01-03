@@ -1,5 +1,6 @@
 using NUnit;
 using Moq;
+using NUnit.Framework.Internal;
 
 namespace Queue.Manager.Test.UnitTests
 {
@@ -57,6 +58,77 @@ namespace Queue.Manager.Test.UnitTests
 
             // Assert
             Assert.That(itemCountBefore -1, Is.EqualTo(sut.Count));
+        }
+
+
+        [Test]
+        public void DecrementPosition_WhenitemsAreBetweenCurrentAndNewPosition_ThenDecrementQueuePositionForAllByOne()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            var item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
+            var itemInQueue = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
+            sut.Enqueue(item);
+            sut.Enqueue(itemInQueue);
+
+            int newPosition = 2;
+
+            // Act
+            sut.DecrementPosition(item, newPosition);
+
+            // Assert
+            var actual = (from a in sut.Sort()
+                            where a.Name == itemInQueue.Name
+                            select a.QueuePosition)
+                            .Single();
+
+            Assert.That(actual, Is.EqualTo(1));
+        }
+
+
+        [Test]
+        public void IncrementPosition_WhenitemsAreBetweenCurrentAndNewPosition_ThenIncrementQueuePositionForAllByOne()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            var itemInQueue = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
+            var item = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
+            sut.Enqueue(itemInQueue);
+            sut.Enqueue(item);
+
+            int newPosition = 1;
+
+            // Act
+            sut.IncrementPosition(item, newPosition);
+
+            // Assert
+            var actual = (from a in sut.Sort()
+                          where a.Name == itemInQueue.Name
+                          select a.QueuePosition)
+                              .Single();
+
+            Assert.That(actual, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void IncrementPosition_WhenCurrentPositionIsLessThanNewPosition_ThenThrowArgumentException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            var item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
+            sut.Enqueue(item);
+
+            int newPosition = 2;
+
+            string expectedMessage = $"Current queue position <{item.QueuePosition}> " +
+                $"cannot be higher in the queue than the requested position <{newPosition}>";
+
+            // Act
+            var ex = Assert.Throws<ArgumentException>(
+                () => sut.IncrementPosition(item, newPosition));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo(expectedMessage));
         }
     }
 }

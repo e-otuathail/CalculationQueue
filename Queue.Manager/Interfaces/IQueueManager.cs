@@ -7,8 +7,8 @@
     T Dequeue();
     void Enqueue(T item);
     int GetDirectionOfMove(int currentPosition, int newPosition);
-    void MoveDown(T item, int newPosition);
-    void MoveUp(T item, int newPosition);
+    void DecrementPosition(T item, int newPosition);
+    void IncrementPosition(T item, int newPosition);
     T[] ReOrder(T item, int newPostion);
     T[] Sort();
 }

@@ -40,10 +40,23 @@ public class QueueManager<T> : IQueueManager<T> where T : CustomObject
         return items;
     }
 
-    public void MoveUp(T item, int newPosition)
+    /// <summary>
+    /// Method is called when the item is being moved down the queue. From higher to lower.
+    /// </summary>
+    /// <param name="item">The item in the Queue that is being moved to a new position</param>
+    /// <param name="newPosition"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public void IncrementPosition(T item, int newPosition)
     {
-        if (item == null) throw new ArgumentNullException(nameof(item));
+        if (item.QueuePosition - newPosition < 0) 
+            throw new ArgumentException($"Current queue position <{item.QueuePosition}> " +
+                $"cannot be higher in the queue than the requested position <{newPosition}>");
         if (queue.Count == 0) throw new InvalidOperationException("Queue is empty");
+        if (item.QueuePosition < 1 || item.QueuePosition > queue.Count)
+            throw new InvalidOperationException("Invalid Current Position");
+        if (newPosition < 1 || newPosition > queue.Count)
+            throw new InvalidOperationException("Invalid New Position");
 
         T[] items = queue.ToArray();
         Array.Sort(items, comparer);
@@ -65,15 +78,19 @@ public class QueueManager<T> : IQueueManager<T> where T : CustomObject
         }
     }
 
-    public void MoveDown(T item, int newPosition)
+    public void DecrementPosition(T item, int newPosition)
     {
-        if (item == null) throw new ArgumentNullException(nameof(item));
         if (queue.Count == 0) throw new InvalidOperationException("Queue is empty");
+        if (item.QueuePosition < 1 || item.QueuePosition > queue.Count) 
+            throw new InvalidOperationException("Invalid Current Position");
+        if (newPosition < 1 || newPosition > queue.Count)
+            throw new InvalidOperationException("Invalid New Position");
 
         T[] items = queue.ToArray();
         Array.Sort(items, comparer);
 
-        // Decrease position by 1 for items lower than the current position and higher or equal to the new position
+        // Decrement the position by 1 for items lower than current position
+        // and higher than or equal to new position
         for (int i = item.QueuePosition; i < newPosition; i++)
         {
             --items.ElementAt(i).QueuePosition;
@@ -97,16 +114,16 @@ public class QueueManager<T> : IQueueManager<T> where T : CustomObject
         if (!queue.Contains(item)) throw new InvalidOperationException("Item not found in the Queue");
         if (queue.Count < newPostion || newPostion < 1) throw new InvalidOperationException("New position is out of bounds");
 
-        var direction = GetDirectionOfMove(item.QueuePosition, newPostion);
-        switch (direction)
+        var moveDirection = GetDirectionOfMove(item.QueuePosition, newPostion);
+        switch (moveDirection)
         {
             case 0:
                 break;
             case 1:
-                MoveUp(item, newPostion);
+                IncrementPosition(item, newPostion);
                 break;
             case -1:
-                MoveDown(item, newPostion);
+                DecrementPosition(item, newPostion);
                 break;
             default:
                 break;
