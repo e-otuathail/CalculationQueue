@@ -54,6 +54,28 @@ namespace Queue.Manager.Test.UnitTests
         }
 
         [Test]
+        public void Enqueue_WhenItemAddedToTheQueue_ThenTheQueuePositionIsSetToTheQueueCountPlusOne()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+
+            // Act
+            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub" });
+            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux" });
+            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK" });
+
+            // Assert
+            var items = sut.Sort();
+            Assert.Multiple(() =>
+            {
+                Assert.That(items[0].QueuePosition, Is.EqualTo(1));
+                Assert.That(items[1].QueuePosition, Is.EqualTo(2));
+                Assert.That(items[2].QueuePosition, Is.EqualTo(3));
+            });
+            
+        }
+
+        [Test]
         public void RemoveItemAt_WhenItemRemovedFromSpecifiedPosition_ThenNumberOfItemsInTheQueueIsReducedByOne()
         {
             // Arrange
