@@ -11,7 +11,7 @@ namespace Queue.Manager.Test.UnitTests
         public void GetDirectionOfMove_WhenCurrentAndNewPositionAreTheSame_ThenReturnZero()
         {
             // Arrange
-            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
             int currentPosition = 1;
             int newPosition = 1;
             
@@ -26,7 +26,7 @@ namespace Queue.Manager.Test.UnitTests
         public void Dequeue_WhenNoItemsInTheQueue_ThenRaiseAnInvalidOperationException()
         {
             // Arrange
-            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
 
             // Act
             var ex = Assert.Throws<InvalidOperationException>(() => sut.Dequeue());
@@ -40,7 +40,7 @@ namespace Queue.Manager.Test.UnitTests
         public void Dequeue_WhenItemsInTheQueue_ThenReduceTheNumberOfItemsByOne()
         {
             // Arrange
-            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
             sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
             sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
             sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
@@ -53,12 +53,53 @@ namespace Queue.Manager.Test.UnitTests
             Assert.That(itemCountBefore -1, Is.EqualTo(sut.Count));
         }
 
+        [Test]
+        public void RemoveItemAt_WhenItemRemovedFromSpecifiedPosition_ThenNumberOfItemsInTheQueueIsReducedByOne()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
+            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
+            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
+            
+            // Act
+            var itemsRemaining = sut.RemoveItemAt(3);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(itemsRemaining, Has.Length.EqualTo(2));
+                Assert.That(sut.Count, Is.EqualTo(2));
+            });
+        }
+
+        [Test]
+        public void RemoveItemAt_WhenItemRemovedFromSpecifiedPosition_ThenQueuePositionForRemainingItemsIsUpdated()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
+            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
+            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
+            sut.Enqueue(new CustomObject { Name = "Item D", Region = "HK", QueuePosition = 4 });
+
+            // Act
+            var itemsRemaining = sut.RemoveItemAt(2);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(itemsRemaining[0].QueuePosition, Is.EqualTo(1));
+                Assert.That(itemsRemaining[1].QueuePosition, Is.EqualTo(2));
+                Assert.That(itemsRemaining[2].QueuePosition, Is.EqualTo(3));
+            });
+        }
 
         [Test]
         public void DecrementPosition_WhenitemsAreBetweenCurrentAndNewPosition_ThenDecrementQueuePositionForAllByOne()
         {
             // Arrange
-            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
             var item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
             var itemInQueue = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
             sut.Enqueue(item);
@@ -83,7 +124,7 @@ namespace Queue.Manager.Test.UnitTests
         public void IncrementPosition_WhenitemsAreBetweenCurrentAndNewPosition_ThenIncrementQueuePositionForAllByOne()
         {
             // Arrange
-            QueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            QueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
             var itemInQueue = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
             var item = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
             sut.Enqueue(itemInQueue);
@@ -107,7 +148,7 @@ namespace Queue.Manager.Test.UnitTests
         public void IncrementPosition_WhenCurrentPositionIsLessThanNewPosition_ThenThrowArgumentException()
         {
             // Arrange
-            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
             CustomObject item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
             sut.Enqueue(item);
 

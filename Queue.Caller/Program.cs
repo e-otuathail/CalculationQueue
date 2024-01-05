@@ -3,7 +3,7 @@
 using Queue.Manager;
 using System.Text.RegularExpressions;
 
-QueueManager<CustomObject> reorderableQueue = new QueueManager<CustomObject>(new CustomComparer());
+QueueManager<CustomObject> reorderableQueue = new QueueManager<CustomObject>(new QueuePositionComparer());
 
 reorderableQueue.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
 reorderableQueue.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });

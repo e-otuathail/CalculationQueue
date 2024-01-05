@@ -20,6 +20,22 @@ namespace Queue.Manager
             queue.Enqueue(item);
         }
 
+        public T[] RemoveItemAt(int queuePosition)
+        {
+            if (queue.Count < queuePosition - 1)
+                throw new InvalidOperationException("Invalid Queue Position");
+
+            T[] items = queue.ToArray();
+            Array.Sort(items, comparer);
+            T itemToRemove = items[queuePosition - 1];
+            for (int i = queuePosition; i < items.Length; i++)
+            {
+                items[i].QueuePosition--;
+            }
+            queue = new Queue<T>(items.Where(x => !x.Equals(itemToRemove)).ToArray());
+            return queue.ToArray();
+        }
+
         public T Dequeue()
         {
             if (queue.Count == 0)
@@ -28,6 +44,7 @@ namespace Queue.Manager
             T[] items = queue.ToArray();
             Array.Sort(items, comparer);
             queue = new Queue<T>(items);
+            
             return queue.Dequeue();
         }
 

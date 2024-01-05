@@ -13,5 +13,6 @@
         void IncrementPosition(T item, int newPosition);
         T[] ReOrder(T item, int newPostion);
         T[] Sort();
+        T[] RemoveItemAt(int queuePosition);
     }
 }

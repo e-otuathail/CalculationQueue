@@ -3,7 +3,7 @@
 
 namespace Queue.Manager
 {
-    public class CustomComparer : IComparer<CustomObject>
+    public class QueuePositionComparer : IComparer<CustomObject>
     {
         public int Compare(CustomObject? x, CustomObject? y) 
         {

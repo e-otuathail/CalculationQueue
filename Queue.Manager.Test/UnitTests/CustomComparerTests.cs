@@ -13,7 +13,7 @@ namespace Queue.Manager.Test.UnitTests
             // Arrange
             CustomObject x = new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 };
             CustomObject y = new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 };
-            CustomComparer sut = new CustomComparer();
+            QueuePositionComparer sut = new QueuePositionComparer();
 
             // Act
             var result = sut.Compare(x, y);
@@ -28,7 +28,7 @@ namespace Queue.Manager.Test.UnitTests
             // Arrange
             CustomObject x = new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 };
             CustomObject y = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
-            CustomComparer sut = new CustomComparer();
+            QueuePositionComparer sut = new QueuePositionComparer();
 
             // Act
             var result = sut.Compare(x, y);
