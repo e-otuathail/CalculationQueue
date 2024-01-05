@@ -1,8 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 // Using the ReorderableQueue
+using Queue.Manager;
 using System.Text.RegularExpressions;
 
-IQueueManager<CustomObject> reorderableQueue = new QueueManager<CustomObject>(new CustomComparer());
+QueueManager<CustomObject> reorderableQueue = new QueueManager<CustomObject>(new CustomComparer());
 
 reorderableQueue.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
 reorderableQueue.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });

@@ -1,19 +1,12 @@
 using NUnit;
 using Moq;
 using NUnit.Framework.Internal;
+using Queue.Manager.Interfaces;
 
 namespace Queue.Manager.Test.UnitTests
 {
     public class QueueManagerTests
     {
-        [SetUp]
-        public void Setup()
-        {
-            var customObjectMock = new Mock<ICustomObject>();
-            customObjectMock.Setup(m => m.QueuePosition).Returns(1);
-            var customComparerMock = new Mock<ICustomComparer>();
-        }
-
         [Test]
         public void GetDirectionOfMove_WhenCurrentAndNewPositionAreTheSame_ThenReturnZero()
         {
@@ -90,7 +83,7 @@ namespace Queue.Manager.Test.UnitTests
         public void IncrementPosition_WhenitemsAreBetweenCurrentAndNewPosition_ThenIncrementQueuePositionForAllByOne()
         {
             // Arrange
-            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
+            QueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
             var itemInQueue = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
             var item = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
             sut.Enqueue(itemInQueue);
@@ -115,7 +108,7 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new CustomComparer());
-            var item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
+            CustomObject item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
             sut.Enqueue(item);
 
             int newPosition = 2;

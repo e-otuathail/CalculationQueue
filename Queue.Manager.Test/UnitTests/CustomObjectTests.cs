@@ -14,7 +14,7 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             // Act
-            ICustomObject sut = new CustomObject();
+            CustomObject sut = new CustomObject();
 
             // Assert
             Assert.That(sut.Name, Is.EqualTo("Undefined"));
@@ -25,7 +25,7 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             // Act
-            ICustomObject sut = new CustomObject();
+            CustomObject sut = new CustomObject();
 
             // Assert
             Assert.That(sut.Region, Is.EqualTo("Undefined"));
@@ -35,8 +35,8 @@ namespace Queue.Manager.Test.UnitTests
         public void Equals_WhenDefaultConstructorIsUsed_ThenReturnFalse()
         {
             // Arrange
-            ICustomObject objectBeingCompared = new CustomObject();
-            ICustomObject sut = new CustomObject 
+            CustomObject objectBeingCompared = new CustomObject();
+            CustomObject sut = new CustomObject 
             { 
                 QueuePosition = 1 
             };
@@ -52,8 +52,8 @@ namespace Queue.Manager.Test.UnitTests
         public void GetHashCode_WhenDefaultConstructorIsUsed_ThenReturnTheSameHashCode()
         {
             // Arrange
-            ICustomObject sutA = new CustomObject();
-            ICustomObject sutB = new CustomObject();
+            CustomObject sutA = new CustomObject();
+            CustomObject sutB = new CustomObject();
 
             // Act
             var resultA = sutA.GetHashCode();

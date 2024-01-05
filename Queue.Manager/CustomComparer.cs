@@ -1,11 +1,15 @@
 ﻿
-// Comparer based on Priority property
-public class CustomComparer : IComparer<ICustomObject>, ICustomComparer
+//using Queue.Manager.Interfaces;
+
+namespace Queue.Manager
 {
-    public int Compare(ICustomObject? x, ICustomObject? y)
+    public class CustomComparer : IComparer<CustomObject>
     {
-        if (x is null || y is null)
-            return -1;
-        return x.QueuePosition.CompareTo(y.QueuePosition);
+        public int Compare(CustomObject? x, CustomObject? y) 
+        {
+            if (x is null || y is null)
+                return -1;
+            return x.QueuePosition.CompareTo(y.QueuePosition);
+        }
     }
 }
