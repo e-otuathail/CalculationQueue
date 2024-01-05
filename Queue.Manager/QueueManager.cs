@@ -17,6 +17,7 @@ namespace Queue.Manager
 
         public void Enqueue(T item)
         {
+            item.QueuePosition = queue.Count() + 1;
             queue.Enqueue(item);
         }
 
