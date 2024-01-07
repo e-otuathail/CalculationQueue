@@ -4,10 +4,11 @@ namespace Queue.Manager
 {
     public class CustomObject
     {
-        public bool ReOrder { get; set; }
         public string Name { get; set; } = "Undefined";
         public string Region { get; set; } = "Undefined";
-        public int QueuePosition { get; set; } = 0;
+        public int QueuePosition { get; private set; } = 0;
+
+        internal void SetQueuePosition(int position) => QueuePosition = position;
 
         public override bool Equals(object? obj)
         {

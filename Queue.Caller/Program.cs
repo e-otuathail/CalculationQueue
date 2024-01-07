@@ -5,12 +5,12 @@ using System.Text.RegularExpressions;
 
 QueueManager<CustomObject> reorderableQueue = new QueueManager<CustomObject>(new QueuePositionComparer());
 
-reorderableQueue.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
-reorderableQueue.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
-reorderableQueue.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
-reorderableQueue.Enqueue(new CustomObject { Name = "Item D", Region = "Dub", QueuePosition = 4 });
-reorderableQueue.Enqueue(new CustomObject { Name = "Item E", Region = "Lux", QueuePosition = 5 });
-reorderableQueue.Enqueue(new CustomObject { Name = "Item F", Region = "HK", QueuePosition = 6 });
+reorderableQueue.Enqueue(new CustomObject { Name = "A", Region = "Region 1" }); // QueuePosition = 1
+reorderableQueue.Enqueue(new CustomObject { Name = "B", Region = "Region 2" }); // QueuePosition = 2
+reorderableQueue.Enqueue(new CustomObject { Name = "C", Region = "Region 3" }); // QueuePosition = 3
+reorderableQueue.Enqueue(new CustomObject { Name = "D", Region = "Region 1" }); // QueuePosition = 4
+reorderableQueue.Enqueue(new CustomObject { Name = "E", Region = "Region 2" }); // QueuePosition = 5
+reorderableQueue.Enqueue(new CustomObject { Name = "F", Region = "Region 3" }); // QueuePosition = 6
 
 Console.WriteLine();
 
@@ -19,7 +19,7 @@ var sortedQueue = reorderableQueue.Sort();
 Console.WriteLine("Sorted Queue");
 foreach (var item in sortedQueue)
 {
-    Console.WriteLine($"Position: {item.QueuePosition} {item.Name} {item.Region}");
+    Console.WriteLine($"Item: {item.Name} >> Position: {item.QueuePosition} ");
 }
 
 Console.WriteLine();
@@ -61,7 +61,7 @@ Console.WriteLine("Re-Ordered");
 
 foreach (var item in reOrderedQueue)
 {
-    Console.WriteLine($"Position: {item.QueuePosition} {item.Name} {item.Region}");
+    Console.WriteLine($"Item: {item.Name} >> Position: {item.QueuePosition}");
 }
     
 

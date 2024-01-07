@@ -31,22 +31,22 @@ namespace Queue.Manager.Test.UnitTests
             Assert.That(sut.Region, Is.EqualTo("Undefined"));
         }
 
-        [Test]
-        public void Equals_WhenDefaultConstructorIsUsed_ThenReturnFalse()
-        {
-            // Arrange
-            CustomObject objectBeingCompared = new CustomObject();
-            CustomObject sut = new CustomObject 
-            { 
-                QueuePosition = 1 
-            };
+        //[Test]
+        //public void Equals_WhenDefaultConstructorIsUsed_ThenReturnFalse()
+        //{
+        //    // Arrange
+        //    CustomObject objectBeingCompared = new CustomObject();
+        //    CustomObject sut = new CustomObject 
+        //    { 
+        //        QueuePosition = 1 
+        //    };
 
-            // Act
-            var result = sut.Equals(objectBeingCompared);
+        //    // Act
+        //    var result = sut.Equals(objectBeingCompared);
 
-            // Assert
-            Assert.That(result, Is.EqualTo(false));
-        }
+        //    // Assert
+        //    Assert.That(result, Is.EqualTo(false));
+        //}
 
         [Test]
         public void GetHashCode_WhenDefaultConstructorIsUsed_ThenReturnTheSameHashCode()

@@ -23,7 +23,7 @@ namespace Queue.Manager.Test.UnitTests
         }
 
         [Test]
-        public void Dequeue_WhenNoItemsInTheQueue_ThenRaiseAnInvalidOperationException()
+        public void Dequeue_WhenNoItemsInTheQueue_ThenThrowInvalidOperationException()
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
@@ -41,9 +41,9 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
-            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
-            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
+            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub" });
+            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux" });
+            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK" });
             int itemCountBefore = sut.Count;
 
             // Act
@@ -80,10 +80,10 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
-            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
-            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
-            
+            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub" });
+            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux" });
+            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK" });
+
             // Act
             var itemsRemaining = sut.RemoveItemAt(3);
 
@@ -100,10 +100,10 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK", QueuePosition = 3 });
-            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 });
-            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 });
-            sut.Enqueue(new CustomObject { Name = "Item D", Region = "HK", QueuePosition = 4 });
+            sut.Enqueue(new CustomObject { Name = "Item A", Region = "Dub" });
+            sut.Enqueue(new CustomObject { Name = "Item B", Region = "Lux" });
+            sut.Enqueue(new CustomObject { Name = "Item C", Region = "HK" });
+            sut.Enqueue(new CustomObject { Name = "Item D", Region = "HK" });
 
             // Act
             var itemsRemaining = sut.RemoveItemAt(2);
@@ -122,10 +122,10 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            var item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
-            var itemInQueue = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
-            sut.Enqueue(item);
-            sut.Enqueue(itemInQueue);
+            var item = new CustomObject { Name = "Item A", Region = "Dub" };
+            var itemInQueue = new CustomObject { Name = "Item B", Region = "Lux" };
+            sut.Enqueue(item);          // QueuePosition = 1
+            sut.Enqueue(itemInQueue);   // QueuePosition = 2
 
             int newPosition = 2;
 
@@ -147,8 +147,8 @@ namespace Queue.Manager.Test.UnitTests
         {
             // Arrange
             QueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            var itemInQueue = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
-            var item = new CustomObject { Name = "Item B", Region = "Lux", QueuePosition = 2 };
+            var itemInQueue = new CustomObject { Name = "Item A", Region = "Dub" };
+            var item = new CustomObject { Name = "Item B", Region = "Lux" };
             sut.Enqueue(itemInQueue);
             sut.Enqueue(item);
 
@@ -167,11 +167,11 @@ namespace Queue.Manager.Test.UnitTests
         }
 
         [Test]
-        public void IncrementPosition_WhenCurrentPositionIsLessThanNewPosition_ThenThrowArgumentException()
+        public void IncrementPosition_WhenCurrentPositionIsLessThanNewPosition_ThenThrowInvalidOperationException()
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            CustomObject item = new CustomObject { Name = "Item A", Region = "Dub", QueuePosition = 1 };
+            CustomObject item = new CustomObject { Name = "Item A", Region = "Dub" };
             sut.Enqueue(item);
 
             int newPosition = 2;
@@ -180,11 +180,40 @@ namespace Queue.Manager.Test.UnitTests
                 $"cannot be higher in the queue than the requested position <{newPosition}>";
 
             // Act
-            var ex = Assert.Throws<ArgumentException>(
+            var ex = Assert.Throws<InvalidOperationException>(
                 () => sut.IncrementPosition(item, newPosition));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo(expectedMessage));
+        }
+        
+        [Test]
+        public void IncrementPosition_WhenParameterNamedItemIsNull_ThenThrowArgumentNullException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            CustomObject? customObject = null;
+
+            // Act
+            var ex = Assert.Throws<ArgumentNullException>(() => sut.IncrementPosition(customObject, 2));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Value cannot be null. (Parameter 'item')"));
+        }
+
+
+        [Test]
+        public void IncrementPosition_WhenNoItemsInTheQueue_ThenThrowInvalidOperationException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            CustomObject customObject = new CustomObject { Name = "Item A", Region = "Dub" };
+
+            // Act
+            var ex = Assert.Throws<InvalidOperationException>(() => sut.IncrementPosition(customObject, 1));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Queue is empty"));
         }
     }
 }

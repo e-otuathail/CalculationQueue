@@ -17,7 +17,8 @@ namespace Queue.Manager
 
         public void Enqueue(T item)
         {
-            item.QueuePosition = queue.Count() + 1;
+            //item.QueuePosition = queue.Count() + 1;
+            item.SetQueuePosition(queue.Count() + 1);
             queue.Enqueue(item);
         }
 
@@ -31,7 +32,8 @@ namespace Queue.Manager
             T itemToRemove = items[queuePosition - 1];
             for (int i = queuePosition; i < items.Length; i++)
             {
-                items[i].QueuePosition--;
+                //items[i].QueuePosition--;
+                items[i].SetQueuePosition(items[i].QueuePosition - 1);
             }
             queue = new Queue<T>(items.Where(x => !x.Equals(itemToRemove)).ToArray());
             return queue.ToArray();
@@ -68,11 +70,11 @@ namespace Queue.Manager
         /// <exception cref="InvalidOperationException"></exception>
         public void IncrementPosition(T item, int newPosition)
         {
-            if (item == null) throw new ArgumentNullException("item");
-            if (item.QueuePosition - newPosition < 0)
-                throw new ArgumentException($"Current queue position <{item.QueuePosition}> " +
-                    $"cannot be higher in the queue than the requested position <{newPosition}>");
+            if (item == null) throw new ArgumentNullException(nameof(item));
             if (queue.Count == 0) throw new InvalidOperationException("Queue is empty");
+            if (item.QueuePosition - newPosition < 0)
+                throw new InvalidOperationException($"Current queue position <{item.QueuePosition}> " +
+                    $"cannot be higher in the queue than the requested position <{newPosition}>");
             if (item.QueuePosition < 1 || item.QueuePosition > queue.Count)
                 throw new InvalidOperationException("Invalid Current Position");
             if (newPosition < 1 || newPosition > queue.Count)
@@ -84,11 +86,11 @@ namespace Queue.Manager
             // Increase position by 1 for items higher than the current position but lower or equal to the new position
             for (int i = newPosition - 1; i < item.QueuePosition - 1; i++)
             {
-                ++items.ElementAt(i).QueuePosition;
+                items.ElementAt(i).SetQueuePosition(items.ElementAt(i).QueuePosition + 1);
             }
 
             // Update item with new position
-            item.QueuePosition = newPosition;
+            item.SetQueuePosition(newPosition);
 
             queue.Clear();
 
@@ -113,11 +115,11 @@ namespace Queue.Manager
             // and higher than or equal to new position
             for (int i = item.QueuePosition; i < newPosition; i++)
             {
-                --items.ElementAt(i).QueuePosition;
+                items.ElementAt(i).SetQueuePosition(items.ElementAt(i).QueuePosition - 1);
             }
 
             // Update item with new position
-            item.QueuePosition = newPosition;
+            item.SetQueuePosition(newPosition);
 
             queue.Clear();
 
