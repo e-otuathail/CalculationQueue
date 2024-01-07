@@ -10,7 +10,7 @@
         void Enqueue(T item);
         int GetDirectionOfMove(int currentPosition, int newPosition);
         void DecrementPosition(T item, int newPosition);
-        void IncrementPosition(T item, int newPosition);
+        void Promote(T item, int newPosition);
         T[] ReOrder(T item, int newPostion);
         T[] Sort();
         T[] RemoveItemAt(int queuePosition);
