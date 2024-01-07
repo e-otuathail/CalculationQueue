@@ -62,35 +62,34 @@ namespace Queue.Manager
         }
 
         /// <summary>
-        /// Method is called when the item is being moved down the queue. From higher to lower.
+        /// Method is called when an item is being moved up the queue. 
+        /// i.e. From Position 2 to Position 1
         /// </summary>
-        /// <param name="item">The item in the Queue that is being moved to a new position</param>
-        /// <param name="newPosition"></param>
+        /// <param name="item">The item in the queue that is being moved</param>
+        /// <param name="requestedPosition"></param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public void IncrementPosition(T item, int newPosition)
+        public void Promote(T item, int requestedPosition)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (queue.Count == 0) throw new InvalidOperationException("Queue is empty");
-            if (item.QueuePosition - newPosition < 0)
+            if (requestedPosition < 1 || requestedPosition > queue.Count)
+                throw new ArgumentException("The Requested Position is Invalid");
+            if (item.QueuePosition - requestedPosition < 0)
                 throw new InvalidOperationException($"Current queue position <{item.QueuePosition}> " +
-                    $"cannot be higher in the queue than the requested position <{newPosition}>");
-            if (item.QueuePosition < 1 || item.QueuePosition > queue.Count)
-                throw new InvalidOperationException("Invalid Current Position");
-            if (newPosition < 1 || newPosition > queue.Count)
-                throw new InvalidOperationException("Invalid New Position");
+                    $"cannot be higher in the queue than the requested position <{requestedPosition}>");
 
             T[] items = queue.ToArray();
             Array.Sort(items, comparer);
 
-            // Increase position by 1 for items higher than the current position but lower or equal to the new position
-            for (int i = newPosition - 1; i < item.QueuePosition - 1; i++)
+            // Demote items that are higher than the current position and lower than or equal to the requested position
+            for (int i = requestedPosition - 1; i < item.QueuePosition - 1; i++)
             {
                 items.ElementAt(i).SetQueuePosition(items.ElementAt(i).QueuePosition + 1);
             }
 
             // Update item with new position
-            item.SetQueuePosition(newPosition);
+            item.SetQueuePosition(requestedPosition);
 
             queue.Clear();
 
@@ -142,7 +141,7 @@ namespace Queue.Manager
                 case 0:
                     break;
                 case 1:
-                    IncrementPosition(item, newPostion);
+                    Promote(item, newPostion);
                     break;
                 case -1:
                     DecrementPosition(item, newPostion);
@@ -164,7 +163,7 @@ namespace Queue.Manager
         /// </summary>
         /// <param name="currentPosition">The current position before the re-order takes place</param>
         /// <param name="newPosition">The new queue position after the re-order takes place</param>
-        /// <returns>Int | 0 (no change) | 1 (move up e.g. p.5 --> p.4) | -1 (move down e.g. p.2 --> p.6)</returns>
+        /// <returns>Int | 0 (no change) | 1 (promote e.g. p.5 --> p.4) | -1 (demote e.g. p.2 --> p.6)</returns>
         public int GetDirectionOfMove(int currentPosition, int newPosition)
         {
             return currentPosition - newPosition == 0 ? 0 :
