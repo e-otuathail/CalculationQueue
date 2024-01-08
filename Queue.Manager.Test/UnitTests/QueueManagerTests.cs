@@ -5,8 +5,62 @@ using Queue.Manager.Interfaces;
 
 namespace Queue.Manager.Test.UnitTests
 {
+    [TestFixture]
     public class QueueManagerTests
     {
+        private QueueManager<CustomObject> queueManager;
+        private CustomObject item1, item2, item3;
+
+        [SetUp]
+        public void Setup()
+        {
+            queueManager = new QueueManager<CustomObject>(new QueuePositionComparer());
+            item1 = new CustomObject { Name = "Item 1" };
+            item2 = new CustomObject { Name = "Item 2" };
+            item3 = new CustomObject { Name = "Item 3" };
+            queueManager.Enqueue(item1); // QueuePosition = 1
+            queueManager.Enqueue(item2); // QueuePosition = 2
+            queueManager.Enqueue(item3); // QueuePosition = 3
+        }
+
+        [Test]
+        public void ReOrder_ItemIsNull_ThrowsArgumentNullException()
+        {
+            CustomObject? item = null;
+            Assert.Throws<ArgumentNullException>(() => queueManager.ReOrder(item, 1));
+        }
+
+        [Test]
+        public void ReOrder_QueueIsEmpty_ThrowsInvalidOperationException()
+        {
+            var emptyQueueManager = new QueueManager<CustomObject>();
+            Assert.Throws<InvalidOperationException>(() => emptyQueueManager.ReOrder(item1, 1));
+        }
+
+        [Test]
+        public void ReOrder_ItemNotInQueue_ThrowsInvalidOperationException()
+        {
+            var itemNotInQueue = new CustomObject();
+            //itemNotInQueue.SetQueuePosition(4);
+            Assert.Throws<InvalidOperationException>(() => queueManager.ReOrder(itemNotInQueue, 1));
+        }
+
+        [Test]
+        public void ReOrder_NewPositionOutOfBounds_ThrowsInvalidOperationException()
+        {
+            Assert.Throws<InvalidOperationException>(() => queueManager.ReOrder(item1, 0));
+            Assert.Throws<InvalidOperationException>(() => queueManager.ReOrder(item1, 4));
+        }
+
+        [Test]
+        public void ReOrder_ValidReOrder_ReturnsCorrectOrder()
+        {
+            var reorderedItems = queueManager.ReOrder(item3, 1);
+            Assert.That(reorderedItems[0].Name, Is.EqualTo("Item 3"));
+            Assert.That(reorderedItems[1].Name, Is.EqualTo("Item 1"));
+            Assert.That(reorderedItems[2].Name, Is.EqualTo("Item 2"));
+        }
+
         [Test]
         public void GetDirectionOfMove_WhenCurrentAndRequestedPositionAreTheSame_ThenReturnZero()
         {
@@ -73,6 +127,19 @@ namespace Queue.Manager.Test.UnitTests
                 Assert.That(items[2].QueuePosition, Is.EqualTo(3));
             });
             
+        }
+
+        [Test]
+        public void Sort_QueueIsEmpty_ThrowsInvalidOperationException()
+        {
+            var emptyQueueManager = new QueueManager<CustomObject>();
+            Assert.Throws<InvalidOperationException>(() => emptyQueueManager.Sort());
+        }
+
+        [Test]
+        public void RemoveItemAt_QueueCountLessThanPosition_IndexOutOfRangeException()
+        {
+            Assert.Throws<IndexOutOfRangeException>(() => queueManager.RemoveItemAt(4));
         }
 
         [Test]
@@ -341,25 +408,5 @@ namespace Queue.Manager.Test.UnitTests
             // Assert
             Assert.That(ex.Message, Is.EqualTo("The Requested Position is Invalid"));
         }
-
-
-        //[Test]
-        //public void ReOrder_WhenItemNotInQueue_ThenThrowInvalidOperationException()
-        //{
-        //    // Arrange
-        //    IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-        //    CustomObject itemNotFound = new CustomObject { Name = "Missing", Region = "Dub" };
-        //    CustomObject itemA = new CustomObject { Name = "Item A", Region = "Dub" };
-        //    CustomObject itemB = new CustomObject { Name = "Item B", Region = "Dub" };
-        //    sut.Enqueue(itemA);
-        //    sut.Enqueue(itemB);
-
-        //    // Act
-        //    var ex = Assert.Throws<InvalidOperationException>(() => sut.Demote(itemNotFound, 1));
-
-        //    // Assert   Item not found in the Queue
-        //    Assert.That(ex.Message, Is.EqualTo("Queue is empty"));
-        //}
-
     }
 }

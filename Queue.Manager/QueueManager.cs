@@ -23,9 +23,9 @@ namespace Queue.Manager
         }
 
         public T[] RemoveItemAt(int queuePosition)
-        {
-            if (queue.Count < queuePosition - 1)
-                throw new InvalidOperationException("Invalid Queue Position");
+        {           
+            if (queuePosition > queue.Count)
+                throw new IndexOutOfRangeException("Queue Position is out of range");
 
             T[] items = queue.ToArray();
             Array.Sort(items, comparer);
@@ -138,23 +138,23 @@ namespace Queue.Manager
             }
         }
 
-        public T[] ReOrder(T item, int newPostion)
+        public T[] ReOrder(T item, int requestedPostion)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (queue.Count == 0) throw new InvalidOperationException("Queue is empty");
             if (!queue.Contains(item)) throw new InvalidOperationException("Item not found in the Queue");
-            if (queue.Count < newPostion || newPostion < 1) throw new InvalidOperationException("New position is out of bounds");
+            if (queue.Count < requestedPostion || requestedPostion < 1) throw new InvalidOperationException("New position is out of bounds");
 
-            var moveDirection = GetDirectionOfMove(item.QueuePosition, newPostion);
+            var moveDirection = GetDirectionOfMove(item.QueuePosition, requestedPostion);
             switch (moveDirection)
             {
                 case 0:
                     break;
                 case 1:
-                    Promote(item, newPostion);
+                    Promote(item, requestedPostion);
                     break;
                 case -1:
-                    Demote(item, newPostion);
+                    Demote(item, requestedPostion);
                     break;
                 default:
                     break;
@@ -172,12 +172,12 @@ namespace Queue.Manager
         /// Return the direction for the requested re-order
         /// </summary>
         /// <param name="currentPosition">The current position before the re-order takes place</param>
-        /// <param name="newPosition">The new queue position after the re-order takes place</param>
+        /// <param name="requestedPosition">The new queue position after the re-order takes place</param>
         /// <returns>Int | 0 (no change) | 1 (promote e.g. p.5 --> p.4) | -1 (demote e.g. p.2 --> p.6)</returns>
-        public int GetDirectionOfMove(int currentPosition, int newPosition)
+        public int GetDirectionOfMove(int currentPosition, int requestedPosition)
         {
-            return currentPosition - newPosition == 0 ? 0 :
-                (currentPosition - newPosition) > 0 ? 1 : -1;
+            return currentPosition - requestedPosition == 0 ? 0 :
+                (currentPosition - requestedPosition) > 0 ? 1 : -1;
         }
         // Example of how to change the comparer at runtime
         public void ChangeComparer(IComparer<T> newComparer)

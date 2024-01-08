@@ -4,6 +4,7 @@ namespace Queue.Manager
 {
     public class CustomObject
     {
+        public Guid Id { get; private set; } = Guid.NewGuid();
         public string Name { get; set; } = "Undefined";
         public string Region { get; set; } = "Undefined";
         public int QueuePosition { get; private set; } = 0;
@@ -24,6 +25,7 @@ namespace Queue.Manager
             if (other.QueuePosition == 0) return false;
 
             return other != null &&
+                Id == other.Id &&
                 Name == other.Name &&
                 Region == other.Region &&
                 QueuePosition == other.QueuePosition;
