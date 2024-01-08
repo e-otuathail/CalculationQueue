@@ -99,26 +99,36 @@ namespace Queue.Manager
             }
         }
 
-        public void DecrementPosition(T item, int newPosition)
+        /// <summary>
+        /// Method is called when an item is being moved down the queue. 
+        /// i.e. From Position 1 to Position 2
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="requestedPosition">The item in the queue that is being moved</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public void Demote(T item, int requestedPosition)
         {
+            if (item == null) throw new ArgumentNullException(nameof(item));
             if (queue.Count == 0) throw new InvalidOperationException("Queue is empty");
-            if (item.QueuePosition < 1 || item.QueuePosition > queue.Count)
-                throw new InvalidOperationException("Invalid Current Position");
-            if (newPosition < 1 || newPosition > queue.Count)
-                throw new InvalidOperationException("Invalid New Position");
+            if (requestedPosition < 1 || requestedPosition > queue.Count)
+                throw new ArgumentException("The Requested Position is Invalid");
+            if (item.QueuePosition - requestedPosition > 0)
+                throw new InvalidOperationException($"Current queue position <{item.QueuePosition}> " +
+                    $"cannot be lower in the queue than the requested position <{requestedPosition}>");
 
             T[] items = queue.ToArray();
             Array.Sort(items, comparer);
 
-            // Decrement the position by 1 for items lower than current position
-            // and higher than or equal to new position
-            for (int i = item.QueuePosition; i < newPosition; i++)
+            // Promote items that are lower than the current position and higher than or equal to the requested position
+            for (int i = item.QueuePosition; i < requestedPosition; i++)
             {
                 items.ElementAt(i).SetQueuePosition(items.ElementAt(i).QueuePosition - 1);
             }
 
             // Update item with new position
-            item.SetQueuePosition(newPosition);
+            item.SetQueuePosition(requestedPosition);
 
             queue.Clear();
 
@@ -144,7 +154,7 @@ namespace Queue.Manager
                     Promote(item, newPostion);
                     break;
                 case -1:
-                    DecrementPosition(item, newPostion);
+                    Demote(item, newPostion);
                     break;
                 default:
                     break;

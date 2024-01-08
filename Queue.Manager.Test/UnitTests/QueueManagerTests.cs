@@ -8,15 +8,15 @@ namespace Queue.Manager.Test.UnitTests
     public class QueueManagerTests
     {
         [Test]
-        public void GetDirectionOfMove_WhenCurrentAndNewPositionAreTheSame_ThenReturnZero()
+        public void GetDirectionOfMove_WhenCurrentAndRequestedPositionAreTheSame_ThenReturnZero()
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
             int currentPosition = 1;
-            int newPosition = 1;
+            int requestedPosition = 1;
             
             // Act
-            var result = sut.GetDirectionOfMove(currentPosition, newPosition);
+            var result = sut.GetDirectionOfMove(currentPosition, requestedPosition);
 
             // Assert
             Assert.That(result, Is.EqualTo(0));
@@ -118,29 +118,118 @@ namespace Queue.Manager.Test.UnitTests
         }
 
         [Test]
-        public void DecrementPosition_WhenitemsAreBetweenCurrentAndNewPosition_ThenDecrementQueuePositionForAllByOne()
+        public void Demote_WhenCurrentPositionIsHigherThanRequestedPosition_ThenThrowInvalidOperationException()
         {
             // Arrange
             IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
-            var item = new CustomObject { Name = "Item A", Region = "Dub" };
-            var itemInQueue = new CustomObject { Name = "Item B", Region = "Lux" };
-            sut.Enqueue(item);          // QueuePosition = 1
-            sut.Enqueue(itemInQueue);   // QueuePosition = 2
+            CustomObject itemX = new CustomObject { Name = "Item X", Region = "Dub" };
+            CustomObject itemY = new CustomObject { Name = "Item Y", Region = "Dub" };
+            CustomObject itemToMove = new CustomObject { Name = "Item A", Region = "Dub" };
+            sut.Enqueue(itemX);
+            sut.Enqueue(itemY);
+            sut.Enqueue(itemToMove);
 
-            int newPosition = 2;
+            int requestedPosition = 2;
+
+            string expectedMessage = $"Current queue position <{itemToMove.QueuePosition}> " +
+                $"cannot be lower in the queue than the requested position <{requestedPosition}>";
 
             // Act
-            sut.DecrementPosition(item, newPosition);
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => sut.Demote(itemToMove, requestedPosition));
 
             // Assert
-            var actual = (from a in sut.Sort()
-                            where a.Name == itemInQueue.Name
-                            select a.QueuePosition)
-                            .Single();
-
-            Assert.That(actual, Is.EqualTo(1));
+            Assert.That(ex.Message, Is.EqualTo(expectedMessage));
         }
 
+        [Test]
+        public void Demote_WhenitemsAreBetweenCurrentAndRequestedPosition_ThenDecrementQueuePositionForAllByOne()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            var itemABeingMoved = new CustomObject { Name = "Item A", Region = "Dub" };
+            var ItemBInQueue = new CustomObject { Name = "Item B", Region = "Lux" };
+            var ItemCInQueue = new CustomObject { Name = "Item C", Region = "HK" };
+            sut.Enqueue(itemABeingMoved);   // QueuePosition = 1
+            sut.Enqueue(ItemBInQueue);      // QueuePosition = 2
+            sut.Enqueue(ItemCInQueue);      // QueuePosition = 3
+
+            int requestedPosition = 3;
+
+            // Act
+            sut.Demote(itemABeingMoved, requestedPosition);
+
+            // Assert
+            var actual = (from c in sut.Sort()
+                            where c.Name == ItemCInQueue.Name
+                            select c.QueuePosition)
+                            .Single();
+
+            Assert.That(actual, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Demote_WhenTheItemParameterIsNull_ThenThrowArgumentNullException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            CustomObject? customObject = null;
+
+            // Act
+            var ex = Assert.Throws<ArgumentNullException>(() => sut.Demote(customObject, 2));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Value cannot be null. (Parameter 'item')"));
+        }
+
+
+        [Test]
+        public void Demote_WhenNoItemsInTheQueue_ThenThrowInvalidOperationException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            CustomObject customObject = new CustomObject { Name = "Item A", Region = "Dub" };
+
+            // Act
+            var ex = Assert.Throws<InvalidOperationException>(() => sut.Demote(customObject, 1));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Queue is empty"));
+        }
+
+
+        [Test]
+        public void Demote_WhenRequestedPositionIsLessThanOne_ThenThrowArgumentException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            CustomObject customObject = new CustomObject { Name = "Item A", Region = "Dub" };
+            sut.Enqueue(customObject);
+            int requestedPosition = 0;
+
+            // Act
+            var ex = Assert.Throws<ArgumentException>(() => sut.Demote(customObject, requestedPosition));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("The Requested Position is Invalid"));
+        }
+
+
+        [Test]
+        public void Demote_WhenRequestedPositionIsGreaterThanTheNumberOfItemsInTheQueue_ThenThrowArgumentException()
+        {
+            // Arrange
+            IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+            CustomObject customObject = new CustomObject { Name = "Item A", Region = "Dub" };
+            sut.Enqueue(customObject);
+            int requestedPosition = 2;
+
+            // Act
+            var ex = Assert.Throws<ArgumentException>(() => sut.Demote(customObject, requestedPosition));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("The Requested Position is Invalid"));
+        }
 
         [Test]
         public void Promote_WhenitemsAreBetweenCurrentAndRequestedPosition_ThenIncrementQueuePositionForAllByOne()
@@ -252,5 +341,25 @@ namespace Queue.Manager.Test.UnitTests
             // Assert
             Assert.That(ex.Message, Is.EqualTo("The Requested Position is Invalid"));
         }
+
+
+        //[Test]
+        //public void ReOrder_WhenItemNotInQueue_ThenThrowInvalidOperationException()
+        //{
+        //    // Arrange
+        //    IQueueManager<CustomObject> sut = new QueueManager<CustomObject>(new QueuePositionComparer());
+        //    CustomObject itemNotFound = new CustomObject { Name = "Missing", Region = "Dub" };
+        //    CustomObject itemA = new CustomObject { Name = "Item A", Region = "Dub" };
+        //    CustomObject itemB = new CustomObject { Name = "Item B", Region = "Dub" };
+        //    sut.Enqueue(itemA);
+        //    sut.Enqueue(itemB);
+
+        //    // Act
+        //    var ex = Assert.Throws<InvalidOperationException>(() => sut.Demote(itemNotFound, 1));
+
+        //    // Assert   Item not found in the Queue
+        //    Assert.That(ex.Message, Is.EqualTo("Queue is empty"));
+        //}
+
     }
 }
