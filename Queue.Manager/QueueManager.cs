@@ -166,7 +166,15 @@ namespace Queue.Manager
         }
 
         public int Count => queue.Count;
-        public T Current => queue.GetEnumerator().Current;
+        public T GetFirstItem
+        {
+            get
+            {
+                var enumerator = queue.GetEnumerator();
+                enumerator.MoveNext();
+                return enumerator.Current;
+            }
+        }
 
         /// <summary>
         /// Return the direction for the requested re-order

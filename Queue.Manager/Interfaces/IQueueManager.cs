@@ -3,7 +3,7 @@
     public interface IQueueManager<T> where T : class
     {
         int Count { get; }
-        T Current { get; }
+        T GetFirstItem { get; }
 
         void ChangeComparer(IComparer<T> newComparer);
         T Dequeue();

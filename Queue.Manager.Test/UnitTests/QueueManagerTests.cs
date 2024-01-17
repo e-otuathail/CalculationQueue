@@ -408,5 +408,12 @@ namespace Queue.Manager.Test.UnitTests
             // Assert
             Assert.That(ex.Message, Is.EqualTo("The Requested Position is Invalid"));
         }
+
+        [Test]
+        public void GetFirstItem_QueueIsNotEmpty_ReturnsFirstItem()
+        {
+            var current = queueManager.GetFirstItem;
+            Assert.That(current, Is.EqualTo(item1));
+        }
     }
 }
